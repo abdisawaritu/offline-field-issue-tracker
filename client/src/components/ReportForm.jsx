@@ -5,11 +5,15 @@ import { createLocalReport } from "../services/reportStore";
 import { CATEGORIES, PRIORITIES, BUSINESS_STATUS } from "../utils/constants";
 import { useRole } from "../store/useRole";
 
+const OTHER_CATEGORY = "Other";
+const CUSTOM_CATEGORY_MAX = 50;
+
 export default function ReportForm({ onCreated }) {
   const { role } = useRole();
 
   const [form, setForm] = useState({
     category: CATEGORIES[0],
+    customCategory: "",
     description: "",
     location: "",
     priority: "MEDIUM",
@@ -20,10 +24,24 @@ export default function ReportForm({ onCreated }) {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const isOther = form.category === OTHER_CATEGORY;
+
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  }
+
+  function handleCategoryChange(value) {
+    setForm((prev) => ({
+      ...prev,
+      category: value,
+      // Clear custom text when switching away from Other
+      customCategory: value === OTHER_CATEGORY ? prev.customCategory : "",
+    }));
+    if (errors.category) {
+      setErrors((prev) => ({ ...prev, category: null }));
     }
   }
 
@@ -32,7 +50,21 @@ export default function ReportForm({ onCreated }) {
     setSuccess(false);
 
     const localErrors = {};
-    if (!form.category) localErrors.category = "Required";
+
+    if (!form.category) {
+      localErrors.category = "Required";
+    }
+
+    // If "Other" is selected, require a custom category
+    if (isOther) {
+      const trimmed = form.customCategory.trim();
+      if (!trimmed) {
+        localErrors.customCategory = "Please describe the category";
+      } else if (trimmed.length > CUSTOM_CATEGORY_MAX) {
+        localErrors.customCategory = `Maximum ${CUSTOM_CATEGORY_MAX} characters`;
+      }
+    }
+
     if (!form.description || form.description.length < 10)
       localErrors.description = "At least 10 characters";
     if (!form.location || form.location.trim().length === 0)
@@ -44,10 +76,13 @@ export default function ReportForm({ onCreated }) {
       return;
     }
 
+    // Determine final category value to store
+    const finalCategory = isOther ? form.customCategory.trim() : form.category;
+
     setSubmitting(true);
     try {
       await createLocalReport({
-        category: form.category,
+        category: finalCategory,
         description: form.description,
         location: form.location,
         priority: form.priority,
@@ -58,6 +93,7 @@ export default function ReportForm({ onCreated }) {
       setSuccess(true);
       setForm({
         category: CATEGORIES[0],
+        customCategory: "",
         description: "",
         location: "",
         priority: "MEDIUM",
@@ -99,7 +135,7 @@ export default function ReportForm({ onCreated }) {
           <label>Category</label>
           <select
             value={form.category}
-            onChange={(e) => update("category", e.target.value)}
+            onChange={(e) => handleCategoryChange(e.target.value)}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -107,7 +143,31 @@ export default function ReportForm({ onCreated }) {
               </option>
             ))}
           </select>
+          {errors.category && (
+            <div className="form-error">{errors.category}</div>
+          )}
         </div>
+
+        {isOther && (
+          <div className="form-row">
+            <label>Describe the category</label>
+            <input
+              type="text"
+              value={form.customCategory}
+              onChange={(e) => update("customCategory", e.target.value)}
+              placeholder="e.g. Bridge erosion, Damaged solar inverter"
+              maxLength={CUSTOM_CATEGORY_MAX}
+            />
+            {errors.customCategory ? (
+              <div className="form-error">{errors.customCategory}</div>
+            ) : (
+              <div className="form-hint">
+                Maximum {CUSTOM_CATEGORY_MAX} characters. This text will be
+                saved as the report category.
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="form-row">
           <label>Description</label>

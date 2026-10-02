@@ -1,0 +1,17 @@
+/* client/src/styles/index.css */
+/* Single entry point — imports all style layers in order */
+
+/* 1. Tokens (variables) */
+@import "./tokens.css";
+
+/* 2. Base (reset, typography, utilities) */
+@import "./base.css";
+
+/* 3. Layout (app shell, header, nav, page header) */
+@import "./layout.css";
+
+/* 4. Components (buttons, cards, forms, badges, timeline) */
+@import "./components.css";
+
+/* 5. Pages (page-specific styles) */
+@import "./pages.css";

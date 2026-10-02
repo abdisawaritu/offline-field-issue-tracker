@@ -31,11 +31,10 @@ const historyEventSchema = z.object({
 const syncReportSchema = z.object({
   clientId: z.string().regex(uuidRegex, "clientId must be a valid UUID"),
 
-  category: z.enum(CATEGORIES, {
-    errorMap: () => ({
-      message: `Category must be one of: ${CATEGORIES.join(", ")}`,
-    }),
-  }),
+  category: z
+    .string()
+    .min(1, "Category is required")
+    .max(50, "Category must be at most 50 characters"),
 
   description: z
     .string()
