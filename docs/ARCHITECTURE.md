@@ -1,55 +1,35 @@
-# Architecture
+## Client-Side Offline Storage (Phase 5/6)
 
-## Overview
+### IndexedDB via Dexie
 
-The Offline Field Issue Tracker follows a three-tier architecture:
+Three object stores:
 
-1. **Client** (React + IndexedDB) — offline-first UI
-2. **Server** (Node.js + Express) — REST API + business logic
-3. **Database** (MySQL) — persistent storage
+| Store | Primary Key | Indexes | Purpose |
+|---|---|---|---|
+| `reports` | `clientId` | `serverId`, `status`, `priority`, `category`, `syncState`, `createdAt`, `updatedAt`, `createdBy` | Local report copies |
+| `history` | `id` | `reportClientId`, `eventType`, `createdAt`, `synced` | Local audit log |
+| `syncQueue` | `clientId` | `syncState`, `enqueuedAt`, `nextRetryAt` | Pending sync items |
 
-## Backend Foundation (Phase 3)
+### Modules
 
-### Components
+| Module | Responsibility |
+|---|---|
+| `db.js` | Raw IndexedDB operations |
+| `reportStore.js` | High-level report CRUD with history |
+| `connectivity.js` | Online/offline detection |
+| `utils/uuid.js` | UUID generation and validation |
+| `utils/validation.js` | Client-side validation |
+| `utils/stateMachine.js` | Mirrors backend state machine |
+| `utils/constants.js` | Shared enums and config |
 
-| Component | File | Purpose |
-|---|---|---|
-| Entry point | `server/server.js` | Starts HTTP server |
-| Express app | `server/src/app.js` | Middleware + routes |
-| DB pool | `server/src/config/db.js` | MySQL connection pool |
-| Health route | `server/src/routes/health.js` | `/api/v1/health` |
-| Error handler | `server/src/middleware/errorHandler.js` | Centralized errors |
-| Async wrapper | `server/src/utils/asyncHandler.js` | Forwards async errors |
+### Persistence Guarantees
 
-### Middleware Order
+- Reports survive page refresh
+- Reports survive browser restart
+- History is append-only
+- Sync queue is durable
 
-1. CORS
-2. Body parser (`express.json`)
-3. Routes
-4. 404 handler
-5. Error handler (must be last)
+### Interrupted Sync Recovery
 
-### Connection Pool
-
-- `mysql2/promise` for async/await
-- `connectionLimit: 10`
-- `charset: utf8mb4`
-- `timezone: Z` (UTC)
-
-### Error Envelope
-
-Every error returns:
-
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR" | "NOT_FOUND" | "INTERNAL_ERROR" | ...,
-    "message": "...",
-    "details": { ... }
-  },
-  "meta": {
-    "timestamp": "...",
-    "path": "..."
-  }
-}
+`getPendingReports()` treats any report in `SYNCING` state as `PENDING` on
+retrieval. This recovers from browser crashes during sync.
