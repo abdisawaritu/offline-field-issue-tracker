@@ -7,6 +7,42 @@ The system allows field workers to create and manage infrastructure issue
 reports even when they are offline. Reports are persisted locally and
 synchronized with the central server when connectivity becomes available.
 
+> **Status:** Implementation in progress. See the [Development Roadmap](#development-roadmap)
+> for the current phase.
+
+---
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Problem Statement](#problem-statement)
+- [Objectives](#objectives)
+- [Core Features](#core-features)
+- [Report Information](#report-information)
+- [Issue Categories](#issue-categories)
+- [Priority Levels](#priority-levels)
+- [Business Status Workflow](#business-status-workflow)
+- [Synchronization Status](#synchronization-status)
+- [Offline-First Design](#offline-first-design)
+- [Duplicate Prevention and Idempotency](#duplicate-prevention-and-idempotency)
+- [Failure Handling](#failure-handling)
+- [Conflict Strategy](#conflict-strategy)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Database](#database)
+- [API](#api)
+- [Validation](#validation)
+- [Testing Strategy](#testing-strategy)
+- [Project Scope](#project-scope)
+- [Development Roadmap](#development-roadmap)
+- [Assumptions](#assumptions)
+- [Known Limitations](#known-limitations)
+- [Reliability Principles](#reliability-principles)
+- [Git Workflow](#git-workflow)
+- [Current Status](#current-status)
+- [AI Tool Disclosure](#ai-tool-disclosure)
+- [Author](#author)
+
 ---
 
 ## Project Overview
@@ -53,16 +89,11 @@ An issue reporting system for this environment must therefore provide:
 
 ## Objectives
 
-The primary objectives of this project are to:
-
 1. Allow field workers to create issue reports while offline.
-2. Persist reports locally so they survive page refreshes and application
-   restarts.
-3. Synchronize locally stored reports with the central server when connectivity
-   returns.
+2. Persist reports locally so they survive page refreshes and application restarts.
+3. Synchronize locally stored reports with the central server when connectivity returns.
 4. Prevent duplicate server records when synchronization is retried.
-5. Clearly communicate whether a report is pending, synchronizing,
-   synchronized, or failed.
+5. Clearly communicate whether a report is pending, synchronizing, synchronized, or failed.
 6. Provide a coordinator workflow for reviewing and progressing reports.
 7. Maintain a history of important report events and status changes.
 8. Validate data on both the client and server.
@@ -73,8 +104,6 @@ The primary objectives of this project are to:
 ## Core Features
 
 ### Field Worker
-
-Field workers will be able to:
 
 - Create infrastructure issue reports
 - Select an issue category
@@ -88,8 +117,6 @@ Field workers will be able to:
 - View report details and history
 
 ### Coordinator
-
-Coordinators will be able to:
 
 - View submitted reports
 - Review report information
@@ -105,8 +132,6 @@ Authentication is intentionally outside the initial scope of this exercise.
 ---
 
 ## Report Information
-
-Each report is expected to contain information such as:
 
 | Field | Description |
 |---|---|
@@ -124,8 +149,6 @@ Each report is expected to contain information such as:
 
 ## Issue Categories
 
-The initial categories are:
-
 - Broken Water Point
 - Damaged Equipment
 - Service Interruption
@@ -133,13 +156,9 @@ The initial categories are:
 - Maintenance Requirement
 - Other
 
-These categories may be refined during implementation if required.
-
 ---
 
 ## Priority Levels
-
-Reports will use three priority levels:
 
 - `LOW`
 - `MEDIUM`
@@ -148,8 +167,6 @@ Reports will use three priority levels:
 ---
 
 ## Business Status Workflow
-
-Business status represents the lifecycle of a report.
 
 ```text
 DRAFT

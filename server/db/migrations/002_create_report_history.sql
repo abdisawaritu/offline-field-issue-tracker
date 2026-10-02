@@ -1,21 +1,12 @@
+-- Migration: 002_create_report_history
+-- Purpose: Append-only audit log for report events
+
 CREATE TABLE IF NOT EXISTS report_history (
     id              CHAR(36)        NOT NULL,
     report_id       CHAR(36)        NOT NULL,
-    event_type      ENUM(
-                        'CREATED',
-                        'UPDATED',
-                        'SYNC_STARTED',
-                        'SYNC_SUCCEEDED',
-                        'SYNC_FAILED',
-                        'STATUS_CHANGED',
-                        'CONFLICT_DETECTED',
-                        'REOPENED',
-                        'ASSIGNED'
-                    )               NOT NULL,
-    from_status     ENUM('DRAFT', 'SUBMITTED', 'ASSIGNED',
-                         'IN_PROGRESS', 'RESOLVED', 'REJECTED') NULL,
-    to_status       ENUM('DRAFT', 'SUBMITTED', 'ASSIGNED',
-                         'IN_PROGRESS', 'RESOLVED', 'REJECTED') NULL,
+    event_type      ENUM('CREATED', 'UPDATED', 'SYNC_STARTED', 'SYNC_SUCCEEDED', 'SYNC_FAILED', 'STATUS_CHANGED', 'CONFLICT_DETECTED', 'REOPENED', 'ASSIGNED') NOT NULL,
+    from_status     ENUM('DRAFT', 'SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'REJECTED') NULL,
+    to_status       ENUM('DRAFT', 'SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'REJECTED') NULL,
     actor           VARCHAR(100)    NOT NULL,
     details         JSON            NULL,
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
