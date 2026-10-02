@@ -150,15 +150,21 @@ export async function markFailed(clientId, errorMessage) {
 /**
  * Reset a FAILED report to PENDING (manual retry).
  */
-export async function markPending(clientId) {
+/**
+ * Reset a FAILED or transient-failure report to PENDING.
+ * Optionally records the last error message.
+ */
+export async function markPending(clientId, errorMessage = null) {
   const report = await getReport(clientId);
   if (!report) return null;
+
   const updated = {
     ...report,
     syncState: SYNC_STATUS.PENDING,
-    retryCount: 0,
-    nextRetryAt: null,
+    lastError: errorMessage !== null ? errorMessage : report.lastError,
+    lastAttemptAt: new Date().toISOString()
   };
+
   await putReport(updated);
   await enqueueSync(clientId);
   return updated;

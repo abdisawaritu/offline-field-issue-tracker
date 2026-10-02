@@ -1,11 +1,10 @@
 // client/src/pages/OfflineTest.jsx
-// Temporary page to verify IndexedDB persistence.
+// Debug page — offline + sync verification
 
 import { useEffect, useState } from "react";
 import {
   createLocalReport,
   getAllReports,
-  getReport,
   markPending,
 } from "../services/reportStore";
 import {
@@ -15,6 +14,13 @@ import {
   getHistoryForReport,
 } from "../services/db";
 import { isEffectivelyOnline } from "../services/connectivity";
+import {
+  runSyncCycle,
+  startAutoSync,
+  stopAutoSync,
+} from "../services/syncEngine";
+import SyncBadge from "../components/SyncBadge";
+import SyncButton from "../components/SyncButton";
 
 export default function OfflineTest() {
   const [reports, setReports] = useState([]);
@@ -38,6 +44,21 @@ export default function OfflineTest() {
 
   useEffect(() => {
     refresh();
+    startAutoSync({ intervalMs: 30000 });
+
+    const onOnline = () => refresh();
+    const onOffline = () => refresh();
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+
+    const interval = setInterval(refresh, 3000);
+
+    return () => {
+      stopAutoSync();
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+      clearInterval(interval);
+    };
   }, []);
 
   async function handleCreate() {
@@ -73,7 +94,7 @@ export default function OfflineTest() {
 
   return (
     <div style={{ padding: 24, fontFamily: "monospace" }}>
-      <h1>Offline Storage — Debug Page</h1>
+      <h1>Offline + Sync — Debug Page</h1>
 
       <p>
         <strong>Online:</strong>{" "}
@@ -84,31 +105,48 @@ export default function OfflineTest() {
         <strong>Reports in IndexedDB:</strong> {count}
       </p>
 
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={handleCreate}>+ Create offline report</button>{" "}
-        <button onClick={refresh}>↻ Refresh</button>{" "}
+      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+        <button onClick={handleCreate}>+ Create offline report</button>
+        <SyncButton />
+        <button onClick={refresh}>↻ Refresh</button>
         <button onClick={handleClear} style={{ color: "red" }}>
           Clear all
         </button>
       </div>
 
       <h2>Reports</h2>
-      <ul>
+      <ul style={{ listStyle: "none", padding: 0 }}>
         {reports.map((r) => (
-          <li key={r.clientId} style={{ marginBottom: 8 }}>
-            <div>
-              <strong>{r.category}</strong> — {r.status} — {r.syncState}
+          <li
+            key={r.clientId}
+            style={{
+              marginBottom: 12,
+              padding: 12,
+              border: "1px solid #ddd",
+              borderRadius: 6,
+            }}
+          >
+            <div style={{ marginBottom: 4 }}>
+              <strong>{r.category}</strong> — {r.status} —{" "}
+              <SyncBadge syncState={r.syncState} />
             </div>
             <div style={{ fontSize: 12, color: "#666" }}>
               clientId: {r.clientId}
             </div>
             <div style={{ fontSize: 12, color: "#666" }}>{r.description}</div>
-            <button onClick={() => handleViewHistory(r.clientId)}>
-              View history
-            </button>{" "}
-            {r.syncState === "FAILED" && (
-              <button onClick={() => handleRetry(r.clientId)}>Retry</button>
+            {r.lastError && (
+              <div style={{ fontSize: 12, color: "#991b1b" }}>
+                Error: {r.lastError}
+              </div>
             )}
+            <div style={{ marginTop: 6 }}>
+              <button onClick={() => handleViewHistory(r.clientId)}>
+                View history
+              </button>{" "}
+              {r.syncState === "FAILED" && (
+                <button onClick={() => handleRetry(r.clientId)}>Retry</button>
+              )}
+            </div>
           </li>
         ))}
       </ul>
@@ -120,6 +158,7 @@ export default function OfflineTest() {
             {selectedHistory.map((h) => (
               <li key={h.id}>
                 {h.eventType} — {h.createdAt}
+                {h.synced ? " ✓" : " (not synced)"}
               </li>
             ))}
           </ul>
@@ -131,6 +170,7 @@ export default function OfflineTest() {
         {queue.map((q) => (
           <li key={q.clientId}>
             {q.clientId} — retryCount: {q.retryCount} — next: {q.nextRetryAt}
+            {q.lastError ? ` — last error: ${q.lastError}` : ""}
           </li>
         ))}
       </ul>
