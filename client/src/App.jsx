@@ -7,7 +7,7 @@ import FieldWorkerView from "./pages/FieldWorkerView";
 import CoordinatorView from "./pages/CoordinatorView";
 import ReportDetail from "./pages/ReportDetail";
 import OfflineTest from "./pages/OfflineTest";
-import "./styles/app.css";
+
 
 export default function App() {
   return (
