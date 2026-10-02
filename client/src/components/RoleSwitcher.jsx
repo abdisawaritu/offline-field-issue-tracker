@@ -1,4 +1,5 @@
 // client/src/components/RoleSwitcher.jsx
+// Simulated auth: pill-style role switcher
 
 import { useRole } from "../store/useRole";
 
@@ -9,24 +10,25 @@ export default function RoleSwitcher() {
     setRole(e.target.value);
   }
 
+  const initials = role === "coordinator" ? "CO" : "FW";
+  const label = role === "coordinator" ? "Coordinator" : "Field Worker";
+
   return (
-    <div className="flex-row">
-      <span className="text-muted" style={{ fontSize: 13 }}>
-        Acting as:
-      </span>
+    <label className="role-switcher">
+      <span className="role-switcher-avatar">{initials}</span>
       <select
+        className="role-switcher-select"
         value={role}
         onChange={handleChange}
-        style={{
-          padding: "4px 8px",
-          borderRadius: 6,
-          border: "1px solid var(--color-border)",
-          fontSize: 13,
-        }}
+        aria-label="Switch role"
       >
         <option value="field-worker">Field Worker</option>
         <option value="coordinator">Coordinator</option>
       </select>
-    </div>
+      <span className="role-switcher-chevron" aria-hidden="true">
+        ▾
+      </span>
+      <span className="role-switcher-label">{label}</span>
+    </label>
   );
 }

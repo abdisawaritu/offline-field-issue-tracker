@@ -78,9 +78,10 @@ code, pre {
   top: 0;
   z-index: var(--z-sticky);
   height: var(--header-height);
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-xs);
   display: flex;
   align-items: center;
   padding: 0 var(--space-6);
@@ -92,36 +93,44 @@ code, pre {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
+  gap: var(--space-8);
 }
 
 .app-brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-3);
   font-size: var(--text-md);
   font-weight: var(--weight-semibold);
   color: var(--color-text);
+  text-decoration: none;
   white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.app-brand:hover {
+  text-decoration: none;
+  opacity: 0.9;
 }
 
 .app-brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
-  display: flex;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 16px;
+  color: #ffffff;
+  font-size: 15px;
   font-weight: var(--weight-bold);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+  flex-shrink: 0;
 }
 
 .app-brand-name {
   letter-spacing: var(--tracking-tight);
+  font-size: var(--text-md);
 }
 
 .app-nav {
@@ -129,6 +138,7 @@ code, pre {
   align-items: center;
   gap: var(--space-6);
   flex: 1;
+  justify-content: space-between;
 }
 
 .app-nav-links {
@@ -146,6 +156,7 @@ code, pre {
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .app-nav-links a:hover {
@@ -175,6 +186,157 @@ code, pre {
   padding: var(--space-8) var(--space-6);
 }
 
+/* ==================================================
+   SYNC BUTTON (header)
+   ================================================== */
+
+.sync-button-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sync-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.sync-button:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.sync-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sync-icon {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sync-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-message {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  padding: 4px 10px;
+  background: var(--color-text);
+  color: #fff;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-dropdown);
+  animation: fadeInDown 150ms ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================================================
+   ROLE SWITCHER (header)
+   ================================================== */
+
+.role-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3) 0 var(--space-1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.role-switcher:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.role-switcher-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.role-switcher-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0;
+  padding-right: 4px;
+  outline: none;
+  max-width: 120px;
+}
+
+.role-switcher-select:focus-visible {
+  outline: none;
+}
+
+.role-switcher-chevron {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Hide label on desktop, show only on mobile if desired */
+.role-switcher-label {
+  display: none;
+}
 /* ==================================================
    PAGE HEADER
    ================================================== */
@@ -676,14 +838,59 @@ code, pre {
    RESPONSIVE
    ================================================== */
 
+@media (max-width: 900px) {
+  .app-nav-links a {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .app-brand-name {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .app-header {
     padding: 0 var(--space-4);
+    height: auto;
+    min-height: var(--header-height);
+  }
+
+  .app-header-inner {
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-3) 0;
+  }
+
+  .app-nav {
+    gap: var(--space-3);
+  }
+
+  .app-nav-links {
+    gap: 0;
   }
 
   .app-nav-links a {
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-sm);
+  }
+
+  .app-nav-actions {
+    gap: var(--space-2);
+  }
+
+  .sync-button span:not(.sync-icon) {
+    display: none;
+  }
+
+  .sync-button {
+    padding: 0 var(--space-2);
+    width: 36px;
+    justify-content: center;
+  }
+
+  .role-switcher-select {
+    max-width: 100px;
   }
 
   .app-main {
