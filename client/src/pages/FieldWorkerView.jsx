@@ -4,16 +4,16 @@ import { useState } from "react";
 import ReportForm from "../components/ReportForm";
 import ReportList from "../components/ReportList";
 import { useReports } from "../store/useReports";
-import { getRole } from "../store/useRole";
+import { useRole } from "../store/useRole";
 import { runSyncCycle } from "../services/syncEngine";
 
 export default function FieldWorkerView() {
   const allReports = useReports();
+  const { role } = useRole();
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState("");
 
   // Field worker sees only their own reports
-  const role = getRole();
   const myReports = allReports.filter((r) => r.createdBy === role);
 
   async function handleSync() {

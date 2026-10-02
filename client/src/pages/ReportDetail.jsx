@@ -1,26 +1,24 @@
 // client/src/pages/ReportDetail.jsx
 
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { useReport, useReportHistory } from "../store/useReports";
 import { getAllowedTransitions, canReopen } from "../utils/stateMachine";
 import { api } from "../services/api";
-import { putHistory } from "../services/db";
+import { putHistory, putReport } from "../services/db";
 import { generateUuid } from "../utils/uuid";
 import StatusBadge from "../components/StatusBadge";
 import PriorityBadge from "../components/PriorityBadge";
 import SyncBadge from "../components/SyncBadge";
 import HistoryTimeline from "../components/HistoryTimeline";
-import { getRole } from "../store/useRole";
+import { useRole } from "../store/useRole";
 import { HISTORY_EVENTS } from "../utils/constants";
-import { putReport } from "../services/db";
 
 export default function ReportDetail() {
   const { clientId } = useParams();
-  const navigate = useNavigate();
   const report = useReport(clientId);
   const history = useReportHistory(clientId);
-  const role = getRole();
+  const { role } = useRole();
 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -47,7 +45,6 @@ export default function ReportDetail() {
     setMessage("");
 
     try {
-      // Update locally first
       await putReport({
         ...report,
         status: toStatus,
@@ -74,7 +71,6 @@ export default function ReportDetail() {
         synced: false,
       });
 
-      // If server has this report, push the change immediately
       if (report.serverId) {
         try {
           await api.updateStatus(report.serverId, {
@@ -83,7 +79,6 @@ export default function ReportDetail() {
             assignedTo: toStatus === "ASSIGNED" ? assignee : undefined,
           });
 
-          // Mark as synced locally
           await putReport({
             ...report,
             status: toStatus,
@@ -96,7 +91,7 @@ export default function ReportDetail() {
           });
 
           setMessage(`Status updated to ${toStatus}`);
-        } catch (serverErr) {
+        } catch {
           setMessage("Updated locally. Will sync when online.");
         }
       } else {

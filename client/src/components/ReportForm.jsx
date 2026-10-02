@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { createLocalReport } from "../services/reportStore";
-import { validateReport } from "../utils/validation";
 import { CATEGORIES, PRIORITIES, BUSINESS_STATUS } from "../utils/constants";
-import { getRole } from "../store/useRole";
+import { useRole } from "../store/useRole";
 
 export default function ReportForm({ onCreated }) {
+  const { role } = useRole();
+
   const [form, setForm] = useState({
     category: CATEGORIES[0],
     description: "",
@@ -30,13 +31,6 @@ export default function ReportForm({ onCreated }) {
     e.preventDefault();
     setSuccess(false);
 
-    const candidate = {
-      ...form,
-      clientId: "placeholder-to-pass-validation",
-      createdBy: getRole(),
-    };
-
-    // Manual validation without clientId requirement here
     const localErrors = {};
     if (!form.category) localErrors.category = "Required";
     if (!form.description || form.description.length < 10)
@@ -58,7 +52,7 @@ export default function ReportForm({ onCreated }) {
         location: form.location,
         priority: form.priority,
         status: form.status,
-        createdBy: getRole(),
+        createdBy: role,
       });
 
       setSuccess(true);

@@ -1,10 +1,13 @@
 // client/src/components/RoleSwitcher.jsx
-// Simulated authentication: switch between roles
 
 import { useRole } from "../store/useRole";
 
 export default function RoleSwitcher() {
   const { role, setRole } = useRole();
+
+  function handleChange(e) {
+    setRole(e.target.value);
+  }
 
   return (
     <div className="flex-row">
@@ -13,7 +16,7 @@ export default function RoleSwitcher() {
       </span>
       <select
         value={role}
-        onChange={(e) => setRole(e.target.value)}
+        onChange={handleChange}
         style={{
           padding: "4px 8px",
           borderRadius: 6,
