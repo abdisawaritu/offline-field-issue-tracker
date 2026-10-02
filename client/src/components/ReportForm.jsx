@@ -65,6 +65,8 @@ export default function ReportForm({ onCreated }) {
       });
 
       if (onCreated) onCreated();
+
+      setTimeout(() => setSuccess(false), 4000);
     } catch (err) {
       setErrors({ submit: err.message });
     } finally {
@@ -74,11 +76,17 @@ export default function ReportForm({ onCreated }) {
 
   return (
     <div className="card">
-      <h2>Create new report</h2>
+      <header className="card-header">
+        <h2>Create new report</h2>
+        <p className="card-subtitle">
+          Reports are saved locally and sync automatically when online.
+        </p>
+      </header>
 
       {success && (
         <div className="alert alert-success">
-          Report created locally. It will sync automatically when online.
+          <strong>Report created.</strong> It will sync automatically when
+          online.
         </div>
       )}
 
@@ -106,10 +114,16 @@ export default function ReportForm({ onCreated }) {
           <textarea
             value={form.description}
             onChange={(e) => update("description", e.target.value)}
-            placeholder="Describe the issue in detail"
+            placeholder="Describe the issue in detail — location, context, symptoms"
+            rows={4}
           />
-          {errors.description && (
+          {errors.description ? (
             <div className="form-error">{errors.description}</div>
+          ) : (
+            <div className="form-hint">
+              Minimum 10 characters. Include what is broken and how it affects
+              people.
+            </div>
           )}
         </div>
 
@@ -119,10 +133,14 @@ export default function ReportForm({ onCreated }) {
             type="text"
             value={form.location}
             onChange={(e) => update("location", e.target.value)}
-            placeholder="e.g. Village name, GPS, landmark"
+            placeholder="e.g. Gode village, near the health center"
           />
-          {errors.location && (
+          {errors.location ? (
             <div className="form-error">{errors.location}</div>
+          ) : (
+            <div className="form-hint">
+              Be as specific as possible for the coordinator.
+            </div>
           )}
         </div>
 
@@ -147,15 +165,17 @@ export default function ReportForm({ onCreated }) {
               value={form.status}
               onChange={(e) => update("status", e.target.value)}
             >
-              <option value={BUSINESS_STATUS.DRAFT}>DRAFT</option>
-              <option value={BUSINESS_STATUS.SUBMITTED}>SUBMITTED</option>
+              <option value={BUSINESS_STATUS.DRAFT}>Draft</option>
+              <option value={BUSINESS_STATUS.SUBMITTED}>Submitted</option>
             </select>
           </div>
         </div>
 
-        <button className="btn" type="submit" disabled={submitting}>
-          {submitting ? "Creating..." : "Create report"}
-        </button>
+        <div className="form-actions">
+          <button className="btn" type="submit" disabled={submitting}>
+            {submitting ? "Creating..." : "Create report"}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,51 +1,18 @@
 // client/src/components/SyncBadge.jsx
-// Visual indicator for sync state
 
-import { SYNC_STATUS } from "../utils/constants";
-
-const STYLES = {
-  [SYNC_STATUS.PENDING]: {
-    background: "#fef3c7",
-    color: "#92400e",
-    label: "Pending",
-    icon: "🟡",
-  },
-  [SYNC_STATUS.SYNCING]: {
-    background: "#dbeafe",
-    color: "#1e40af",
-    label: "Syncing",
-    icon: "🔵",
-  },
-  [SYNC_STATUS.SYNCHRONIZED]: {
-    background: "#d1fae5",
-    color: "#065f46",
-    label: "Synced",
-    icon: "🟢",
-  },
-  [SYNC_STATUS.FAILED]: {
-    background: "#fee2e2",
-    color: "#991b1b",
-    label: "Failed",
-    icon: "🔴",
-  },
+const SYNC_STYLES = {
+  PENDING: { className: "badge badge-sync-pending", label: "Pending", icon: "●" },
+  SYNCING: { className: "badge badge-sync-syncing", label: "Syncing", icon: "◐" },
+  SYNCHRONIZED: { className: "badge badge-sync-synced", label: "Synced", icon: "●" },
+  FAILED: { className: "badge badge-sync-failed", label: "Failed", icon: "●" }
 };
 
 export default function SyncBadge({ syncState }) {
-  const style = STYLES[syncState] || STYLES[SYNC_STATUS.PENDING];
-
+  const style = SYNC_STYLES[syncState] || SYNC_STYLES.PENDING;
   return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "2px 8px",
-        borderRadius: 12,
-        fontSize: 12,
-        fontWeight: 600,
-        background: style.background,
-        color: style.color,
-      }}
-    >
-      {style.icon} {style.label}
+    <span className={style.className}>
+      <span className="badge-icon">{style.icon}</span>
+      {style.label}
     </span>
   );
 }
