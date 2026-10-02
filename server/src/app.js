@@ -6,6 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const healthRoute = require("./routes/health");
+const reportsRoute = require("./routes/reports");
 const { errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -23,8 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // ---------- Routes ----------
 app.use("/api/v1/health", healthRoute);
+app.use("/api/v1/reports", reportsRoute);
 
-// Legacy health (kept for backward compatibility)
+// Legacy health (backward compatible)
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
